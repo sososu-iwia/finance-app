@@ -7,14 +7,13 @@ import { walletController } from './controllers/wallet.controller.js';
 import { expenseController } from './controllers/expense.controller.js';
 import { goalController } from './controllers/goal.controller.js';
 import { familyBudgetController } from './controllers/family-budget.controller.js';
+import { transactionController } from './controllers/transaction.controller.js';
+import { summaryController } from './controllers/summary.controller.js';
 
 export const routes = (deps) => {
   const router = Router();
 
-  // Public routes
   router.use('/auth', authController(deps.authService));
-
-  // Protected routes
   router.use(authMiddleware(deps.tokenService));
 
   router.use('/wallets', walletController(deps.walletService));
@@ -24,6 +23,8 @@ export const routes = (deps) => {
     '/family-budgets',
     familyBudgetController(deps.familyBudgetService)
   );
+  router.use('/transactions', transactionController(deps.transactionService));
+  router.use('/summary', summaryController(deps.summaryService));
 
   return router;
 };
