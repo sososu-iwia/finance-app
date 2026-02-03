@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Environment variables (ВАЖНО - не отправлять в GitHub!)
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build output
+dist/
+build/
+
+# Data files (опционально - если не хотите делиться транзакциями)
+# data/transactions.json

@@ -12,3 +12,16 @@ export const validate = (schema) => {
     next();
   };
 };
+
+export const validateQuery = (schema) => {
+  return (req, res, next) => {
+    const result = schema.safeParse(req.query);
+
+    if (!result.success) {
+      throw new ValidationException(result.error.message);
+    }
+
+    req.query = result.data;
+    next();
+  };
+};
