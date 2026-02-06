@@ -1,4 +1,4 @@
-import { AuthException } from '../errors/http.exceptions.js';
+import { ForbiddenOperationError } from '../errors/domain.errors.js';
 import { logger } from '../logging/logger.js';
 
 export const requireRole = (...roles) => {
@@ -12,7 +12,7 @@ export const requireRole = (...roles) => {
         userId: req.user?.userId,
         requiredRoles: roles,
       });
-      throw new AuthException('Forbidden');
+      throw new ForbiddenOperationError('Forbidden');
     }
 
     next();

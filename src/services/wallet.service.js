@@ -35,6 +35,10 @@ export class WalletService {
         throw new NotFoundException('Wallet not found');
       }
 
+      if (wallet.userId !== ctx.userId) {
+        throw new ForbiddenOperationError('Not owner');
+      }
+
       if (wallet.balance < amount) {
         throw new InsufficientFundsError('Insufficient funds');
       }

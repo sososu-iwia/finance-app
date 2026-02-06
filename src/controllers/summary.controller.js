@@ -11,7 +11,7 @@ export const summaryController = (summaryService) => {
         validateQuery(querySummarySchema),
         asyncHandler(async (req, res) => {
             const summary = await summaryService.getSummary(
-                req.user.userId,
+                req.user,
                 req.query
             );
             res.json(summary);

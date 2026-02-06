@@ -15,7 +15,7 @@ export const transactionController = (transactionService) => {
         validateQuery(queryTransactionSchema),
         asyncHandler(async (req, res) => {
             const transactions = await transactionService.findAll(
-                req.user.userId,
+                req.user,
                 req.query
             );
             res.json(transactions);
@@ -27,7 +27,7 @@ export const transactionController = (transactionService) => {
         validate(createTransactionSchema),
         asyncHandler(async (req, res) => {
             const transaction = await transactionService.create(
-                req.user.userId,
+                req.user,
                 req.body
             );
             res.status(201).json(transaction);
@@ -38,7 +38,7 @@ export const transactionController = (transactionService) => {
         '/:id',
         asyncHandler(async (req, res) => {
             const transaction = await transactionService.findById(
-                req.user.userId,
+                req.user,
                 req.params.id
             );
             res.json(transaction);
@@ -50,7 +50,7 @@ export const transactionController = (transactionService) => {
         validate(updateTransactionSchema),
         asyncHandler(async (req, res) => {
             const transaction = await transactionService.update(
-                req.user.userId,
+                req.user,
                 req.params.id,
                 req.body
             );
@@ -61,7 +61,7 @@ export const transactionController = (transactionService) => {
     router.delete(
         '/:id',
         asyncHandler(async (req, res) => {
-            await transactionService.delete(req.user.userId, req.params.id);
+            await transactionService.delete(req.user, req.params.id);
             res.sendStatus(204);
         })
     );

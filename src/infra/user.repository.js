@@ -1,26 +1,24 @@
+import { UserModel } from '../models/user.model.js';
+
 /**
- * Simple in-memory user repository
+ * MongoDB (Mongoose) user repository
  */
 export class UserRepository {
-    constructor() {
-        this.users = [];
-        this.nextId = 1;
-    }
-
     async findByEmail(email) {
-        return this.users.find((u) => u.email === email);
+        return UserModel.findOne({ email }).lean();
     }
 
     async findById(id) {
-        return this.users.find((u) => u.id === id);
+        return UserModel.findById(id).lean();
     }
 
     async create(userData) {
-        const user = {
-            id: this.nextId++,
-            ...userData,
-        };
-        this.users.push(user);
-        return user;
+        const user = await UserModel.create(userData);
+        return { id: user._id.toString(), email: user.email, passwordHash: user.passwordHash, roles: user.roles, username: user.username };
+    }
+
+    async updateById(id, patch) {
+        const updated = await UserModel.findByIdAndUpdate(id, patch, { new: true }).lean();
+        return updated;
     }
 }

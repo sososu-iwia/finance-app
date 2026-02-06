@@ -9,6 +9,7 @@ import { goalController } from './controllers/goal.controller.js';
 import { familyBudgetController } from './controllers/family-budget.controller.js';
 import { transactionController } from './controllers/transaction.controller.js';
 import { summaryController } from './controllers/summary.controller.js';
+import { userController } from './controllers/user.controller.js';
 
 export const routes = (deps) => {
   const router = Router();
@@ -16,6 +17,7 @@ export const routes = (deps) => {
   router.use('/auth', authController(deps.authService));
   router.use(authMiddleware(deps.tokenService));
 
+  router.use('/users', userController(deps.userService));
   router.use('/wallets', walletController(deps.walletService));
   router.use('/expenses', expenseController(deps.expenseService));
   router.use('/goals', goalController(deps.goalService));

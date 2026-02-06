@@ -1,52 +1,43 @@
-import { FileStorage } from '../utils/file-storage.util.js';
+import mongoose from 'mongoose';
+import { TransactionModel } from '../models/transaction.model.js';
 
 export class SummaryService {
-    constructor() {
-        this.storage = new FileStorage('data/transactions.json');
-    }
+    async getSummary(ctx, filters = {}) {
+        const match = {
+            userId: new mongoose.Types.ObjectId(ctx.userId),
+        };
 
-    async getSummary(userId, filters = {}) {
-        const transactions = await this.storage.read();
-
-        let userTransactions = transactions.filter((t) => t.userId === userId);
-
-        if (filters.from) {
-            const fromDate = new Date(filters.from);
-            userTransactions = userTransactions.filter(
-                (t) => new Date(t.date) >= fromDate
-            );
+        if (filters.from || filters.to) {
+            match.date = {};
+            if (filters.from) match.date.$gte = new Date(filters.from);
+            if (filters.to) match.date.$lte = new Date(filters.to);
         }
 
-        if (filters.to) {
-            const toDate = new Date(filters.to);
-            userTransactions = userTransactions.filter(
-                (t) => new Date(t.date) <= toDate
-            );
-        }
+        const totals = await TransactionModel.aggregate([
+            { $match: match },
+            {
+                $group: {
+                    _id: '$type',
+                    total: { $sum: '$amount' },
+                },
+            },
+        ]);
 
-        let income = 0;
-        let expense = 0;
-        const byCategory = {};
+        const income = totals.find((t) => t._id === 'income')?.total ?? 0;
+        const expense = totals.find((t) => t._id === 'expense')?.total ?? 0;
 
-        for (const transaction of userTransactions) {
-            if (transaction.type === 'income') {
-                income += transaction.amount;
-            } else if (transaction.type === 'expense') {
-                expense += transaction.amount;
+        const byCategoryAgg = await TransactionModel.aggregate([
+            { $match: { ...match, type: 'expense' } },
+            { $group: { _id: '$category', total: { $sum: '$amount' } } },
+            { $sort: { total: -1 } },
+        ]);
 
-                if (!byCategory[transaction.category]) {
-                    byCategory[transaction.category] = 0;
-                }
-                byCategory[transaction.category] += transaction.amount;
-            }
-        }
-
-        const balance = income - expense;
+        const byCategory = Object.fromEntries(byCategoryAgg.map((x) => [x._id, x.total]));
 
         return {
             income,
             expense,
-            balance,
+            balance: income - expense,
             byCategory,
         };
     }
